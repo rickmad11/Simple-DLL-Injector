@@ -21,7 +21,7 @@ void InjectDLL(const char* DLL_Path, const DWORD& Process_ID) {
 		::CloseHandle(Process_Handle);
 		return;
 	}
-
+																															
 	HANDLE Thread_Handle = ::CreateRemoteThread(Process_Handle, NULL, NULL, reinterpret_cast<LPTHREAD_START_ROUTINE>(::LoadLibraryA), Base_Address, 0, NULL);
 	if (!Thread_Handle) {
 		printf_s("CreateRemoteThread Failed Error Code: %lu\n", ::GetLastError());
@@ -29,7 +29,9 @@ void InjectDLL(const char* DLL_Path, const DWORD& Process_ID) {
 		::CloseHandle(Process_Handle);
 		return;
 	}
+	WaitForSingleObject(Thread_Handle,INFINITE);
 
+	::VirtualFreeEx(Process_Handle, Base_Address, 0, MEM_RELEASE);
 	if (Process_Handle)
 		::CloseHandle(Process_Handle);
 	if (Thread_Handle)
